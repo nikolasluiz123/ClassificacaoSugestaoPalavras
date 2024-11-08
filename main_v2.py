@@ -5,6 +5,8 @@ import keras
 from sklearn.model_selection import train_test_split
 from tabulate import tabulate
 
+from funcoes import plota_resultados
+
 url ='https://github.com/allanspadini/curso-tensorflow-proxima-palavra/raw/main/dados/train.zip'
 
 df = pd.read_csv(url, header=None, names=['ClassIndex', 'Titulo', 'Descricao'], compression='zip')
@@ -26,7 +28,11 @@ vocab = encoder.get_vocabulary()
 
 modelo = keras.Sequential()
 modelo.add(encoder)
-modelo.add(keras.layers.Embedding(input_dim=tamanho_vocabulario, output_dim=16, mask_zero=True))
+modelo.add(keras.layers.Embedding(input_dim=tamanho_vocabulario, output_dim=16))
+modelo.add(keras.layers.Conv1D(filters=64, kernel_size=3, activation='relu'))
+modelo.add(keras.layers.MaxPooling1D(pool_size=2))
+modelo.add(keras.layers.Conv1D(filters=128, kernel_size=4, activation='relu'))
+modelo.add(keras.layers.Dropout(0.5))
 modelo.add(keras.layers.GlobalAveragePooling1D())
 modelo.add(keras.layers.Dense(16, activation='relu'))
 modelo.add(keras.layers.Dense(4, activation='softmax'))
@@ -35,8 +41,8 @@ modelo.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-4),
                loss=keras.losses.SparseCategoricalCrossentropy(),
                metrics=['accuracy'])
 
-modelo.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))
+epochs = 10
 
-print(modelo.predict(x_test[:1]).argmax(axis=1))
+history = modelo.fit(x_train, y_train, epochs=epochs, validation_data=(x_test, y_test))
 
-
+plota_resultados(history, epochs)
