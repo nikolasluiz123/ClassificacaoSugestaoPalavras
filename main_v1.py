@@ -42,3 +42,5 @@ epochs = 10
 history = modelo.fit(x_train, y_train, epochs=epochs, validation_data=(x_test, y_test))
 
 plota_resultados(history, epochs)
+
+print(f'Previsão: {modelo.predict(x_test[1:2])}')
